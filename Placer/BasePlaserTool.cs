@@ -44,6 +44,20 @@ namespace Sandbox.Placer
 
 
 
+
+
+
+
+
+		public override void DestroyViewModel()
+		{
+
+			placeSystem.HideVisualisation();
+			base.DestroyViewModel();
+		}
+
+
+
 		public override void Simulate( IClient client )
 		{
 			if ( Owner is not Player owner ) return;

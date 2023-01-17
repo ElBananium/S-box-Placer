@@ -15,7 +15,7 @@ namespace Sandbox.Placer.Visualtisation_Entity
 	{
 
 
-		protected bool CanBePlaced { get; set; }
+		protected bool CanBePlaced { get => visualisationModel.IsInCorrectPosition; }
 
 
 
@@ -26,8 +26,7 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 		protected VisualisationEntity visualisationModel = default;
 
-		protected bool isEntExist;
-
+		protected bool isEntExist => visualisationModel.IsValid;
 		public bool CanEntityBePlaced()
 		{
 			return isEntExist && CanBePlaced;
@@ -43,8 +42,6 @@ namespace Sandbox.Placer.Visualtisation_Entity
 			if ( !isEntExist )
 			{
 				visualisationModel = new VisualisationEntity( placermodelpath );
-				visualisationModel.Spawn();
-				isEntExist = true;
 			}
 			else
 			{
@@ -63,7 +60,7 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 			visualisationModel.SetPositionAndRotation( entPosition, entRotation );
 
-			CanBePlaced = visualisationModel.IsInCorrectPosition;
+
 
 
 
@@ -72,11 +69,9 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 		public virtual void DeleteEntity()
 		{
-			visualisationModel.Delete();
+			if(isEntExist) visualisationModel.Delete();
 
-			CanBePlaced = false;
 
-			isEntExist = false;
 		}
 
 		public virtual bool IsEntityExist()
@@ -98,5 +93,7 @@ namespace Sandbox.Placer.Visualtisation_Entity
 		{
 			Game.AssertClient();
 		}
+
+
 	}
 }

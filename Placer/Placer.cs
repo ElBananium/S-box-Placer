@@ -49,13 +49,15 @@ namespace Sandbox.Placer
 		}
 
 
-		public virtual void UpdateVisualisation(Vector3 eyePos, Vector3 eyeDir, Rotation eyeRot, Player owner)
+		public virtual void UpdateVisualisation( Vector3 eyePos, Vector3 eyeDir, Rotation eyeRot, Player owner )
 		{
+
+
 			Game.AssertClient();
 
 			var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 				.WorldOnly()
-				.Ignore( owner)
+				.Ignore( owner )
 				.Run();
 
 
@@ -66,27 +68,29 @@ namespace Sandbox.Placer
 
 			if ( tr.Hit && PlacerState.IsSelectedAny )
 			{
-				
+
 
 				VisualisationEntityMemento.CreateOrUpdateEntity( PlacerState, tr.HitPosition, eyeRot );
 			}
 
 
 
-			else if ( VisualisationEntityMemento.IsEntityExist() ) VisualisationEntityMemento.DeleteEntity();
-
-
+			else if ( IsVisualisationShow ) VisualisationEntityMemento.DeleteEntity();
 		}
+
+
+
+
 
 		public virtual void HideVisualisation()
 		{
+			if ( !IsVisualisationShow ) return;
+			
+			
 			this.VisualisationEntityMemento.DeleteEntity();
 		}
 
-		~PlaceSystem()
-		{
-			if(IsVisualisationShow) this.VisualisationEntityMemento.DeleteEntity();
-		}
+
 
 
 
@@ -110,6 +114,8 @@ namespace Sandbox.Placer
 
 
 		}
+
+
 
 
 

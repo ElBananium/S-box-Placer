@@ -48,7 +48,7 @@ namespace Sandbox.Placer.Visualtisation_Entity
 		}
 
 
-		public void SetPositionAndRotation( Vector3 position, Rotation rotation )
+		public virtual void SetPositionAndRotation( Vector3 position, Rotation rotation )
 		{
 			if ( GetAttachment( "bottom" ).GetValueOrDefault() == default )
 			{
@@ -57,6 +57,8 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 
 			this.Rotation = rotation;
+
+
 
 			var attachmentpos = GetAttachment( "bottom", true ).GetValueOrDefault().Position;
 
@@ -74,8 +76,26 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 
 
+
 		}
 
+
+		[Event("client.tick")]
+
+		public void OnClientTick()
+		{
+			var tr = Trace.Body( this.PhysicsBody, this.Position ).WorldOnly().Run();
+
+			if ( tr.Hit )
+			{
+				OnEntityInNotCorrectPosition();
+			}
+			else
+			{
+				
+				OnEntityInCorrectPosition();
+			}
+		}
 
 		public bool IsInCorrectPosition { get; protected set; }
 
@@ -83,27 +103,18 @@ namespace Sandbox.Placer.Visualtisation_Entity
 
 
 
-		[Event( "client.tick" )]
-		public void OnClientTick()
+
+		public virtual void OnEntityInCorrectPosition()
 		{
-			Game.AssertClient();
+			IsInCorrectPosition = true;
+			RenderColor = Color.Green;
+		}
 
 
-			var tr = Trace.Body( PhysicsBody, this.Position ).WorldAndEntities().Run();
-
-
-			if ( tr.Hit )
-			{
-				RenderColor = Color.Red;
-				IsInCorrectPosition = false;
-
-			}
-
-			else
-			{
-				IsInCorrectPosition = true;
-				RenderColor = Color.Green;
-			}
+		public virtual void OnEntityInNotCorrectPosition()
+		{
+			RenderColor = Color.Red;
+			IsInCorrectPosition = false;
 		}
 	}
 }
