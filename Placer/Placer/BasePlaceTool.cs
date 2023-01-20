@@ -1,38 +1,31 @@
-﻿using Sandbox.Diagnostics;
-using Sandbox.Placer.Utilities;
+﻿using Sandbox.Placer.Placer.PlaceSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sandbox.Placer
+namespace Sandbox.Placer.Placer
 {
 	public partial class BasePlacerTool : Carriable
 	{
 		public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
 
 
-		private PlaceSystem placeSystem;
+		protected PlaceVisualisator placeVisualisator = new PlaceVisualisatiorBuilder().WithBaseEntityRendered().WithBasePlacableChoiser().Build();
 
 		public BasePlacerTool()
 		{
-			if ( Game.IsClient )
-			{
-				placeSystem = new PlaceSystem( 100f, new Visualtisation_Entity.VisualisationEntityMemento(), new PlacerState() );
 
 
-			}
-
-			
 		}
 
 
 
-		
 
 
-		
+
+
 
 		public override void Spawn()
 		{
@@ -49,12 +42,6 @@ namespace Sandbox.Placer
 
 
 
-		public override void DestroyViewModel()
-		{
-
-			placeSystem.HideVisualisation();
-			base.DestroyViewModel();
-		}
 
 
 
@@ -83,9 +70,7 @@ namespace Sandbox.Placer
 			using ( Prediction.Off() )
 			{
 
-				if ( placing ) this.placeSystem.TryPlaceEntity();
-
-				this.placeSystem.UpdateVisualisation(eyePos, eyeDir, eyeRot, owner );
+				placeVisualisator.UpdateVisualisation( eyePos, eyeDir, eyeRot, owner );
 
 
 
@@ -93,50 +78,5 @@ namespace Sandbox.Placer
 
 
 		}
-
-
-
-
-
-
-
-
-
-
-		
-
-
-
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-	}
-
-
-
-
-
-
-	
+}
