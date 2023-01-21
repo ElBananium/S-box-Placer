@@ -50,6 +50,9 @@ namespace Sandbox.Placer.VisualisationEntity
 
 		public void OnClientTick()
 		{
+
+
+
 			if ( ishidden ) return;
 
 
@@ -80,7 +83,7 @@ namespace Sandbox.Placer.VisualisationEntity
 
 		protected bool ishidden = true;
 
-		public bool isInCorrectPosition => ishidden && inCorrectPoisition;
+		public bool isInCorrectPosition => !ishidden && inCorrectPoisition;
 
 		public void Hide()
 		{

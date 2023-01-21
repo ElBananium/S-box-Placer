@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Placer.Placer.PlaceSystem
 {
+	
 	public class PlaceVisualisator
 	{
 
@@ -21,10 +22,20 @@ namespace Sandbox.Placer.Placer.PlaceSystem
 
 		protected IPlacableChoiser PlacableChoiser { get; set; }
 
+
+
 		public bool IsInCorrectPosition()
 		{
+
 			return VisualisationEntity.isInCorrectPosition;
-		} 
+		}
+
+
+		public virtual void HideVisualisation()
+		{
+			VisualisationEntity.Hide();
+		}
+
 
 		public virtual void UpdateVisualisation( Vector3 eyePos, Vector3 eyeDir, Rotation eyeRot, Player owner )
 		{
@@ -59,7 +70,7 @@ namespace Sandbox.Placer.Placer.PlaceSystem
 
 
 
-			VisualisationEntity.Position = tr.HitPosition + tr.Normal* VisualisationEntity.CollisionBounds.Size * 0.5f; ;
+			VisualisationEntity.Position = tr.HitPosition + tr.Normal* VisualisationEntity.CollisionBounds.Size * 0.55f; ;
 
 
 			VisualisationEntity.Rotation = Rotation.LookAt(eyeRot.Forward, tr.Normal );
@@ -72,6 +83,13 @@ namespace Sandbox.Placer.Placer.PlaceSystem
 
 
 
+
+		}
+
+		public PositionAndRotation GetVisualisationModelPositionAndRotation()
+		{
+
+			return new PositionAndRotation( VisualisationEntity.Position, VisualisationEntity.Rotation );
 
 		}
 
@@ -123,11 +141,7 @@ namespace Sandbox.Placer.Placer.PlaceSystem
 			return this;
 		}
 
-		public PlaceVisualisatiorBuilder WithBasePlacableChoiser()
-		{
-			_placableChoiser = new BasePlacableChoiser();
-			return this;
-		}
+
 
 
 
@@ -140,7 +154,7 @@ namespace Sandbox.Placer.Placer.PlaceSystem
 			}
 			if(_placableChoiser == null )
 			{
-				WithBasePlacableChoiser();
+				Log.Error( "Need placable choiser" );
 			}
 
 			var visent = new VisEntity( _placableChoiser.GetCurrentChoise().Model, _renderChanger );

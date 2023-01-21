@@ -11,12 +11,12 @@ namespace Sandbox.Placer.Placer.Utils
 
 		public string Model { get; protected set; }
 
-		public Type EntityType { get; protected set; }
+		public string EntityName { get; protected set; }
 
 
-	public PlacableChoise(Type entType, string model)
+	public PlacableChoise(string entName, string model)
 		{
-			EntityType = entType;
+			EntityName = entName;
 
 			Model = model;
 		}

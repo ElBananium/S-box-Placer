@@ -15,14 +15,14 @@ namespace Sandbox.Placer.Placer.PlacableChoiser
 		}
 
 
-		public static PlacableChoise SettedChoise => _settedChoise ?? new PlacableChoise(typeof(BouncyBallEntity), "models/ball/ball.vmdl");
+		public static PlacableChoise SettedChoise => _settedChoise ?? new PlacableChoise(typeof(BouncyBallEntity).Name, "models/ball/ball.vmdl");
 
 		private static PlacableChoise _settedChoise;
 
 		[ConCmd.Client("set_choise")]
-		public static void SetChoise(string model, string TypeName) 
+		public static void SetChoise(string model, string EntName) 
 		{
-			_settedChoise = new PlacableChoise( TypeLibrary.GetType( TypeName ).GetType(), model );
+			_settedChoise = new PlacableChoise( EntName, model );
 		
 		}
 	}

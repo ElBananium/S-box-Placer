@@ -1,8 +1,10 @@
-﻿using Sandbox.Placer.Placer.PlaceSystem;
+﻿using Sandbox.Placer.Placer.PlacableChoiser;
+using Sandbox.Placer.Placer.PlaceSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sandbox.Placer.Placer
@@ -12,12 +14,25 @@ namespace Sandbox.Placer.Placer
 		public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
 
 
-		protected PlaceVisualisator placeVisualisator = new PlaceVisualisatiorBuilder().WithBaseEntityRendered().WithBasePlacableChoiser().Build();
+		protected PlaceVisualisator placeVisualisator;
+
+		protected IPlacableChoiser placableChoiser;
+
+
+		protected EntityCreator entityCreator;
+
 
 		public BasePlacerTool()
 		{
+			entityCreator = new EntityCreator();
+
+			placableChoiser = new BasePlacableChoiser();
 
 
+			if ( Game.IsClient )
+			{
+				placeVisualisator = new PlaceVisualisatiorBuilder().WithBaseEntityRendered().SetPlacableChoiser( placableChoiser ).Build();
+			}
 		}
 
 
@@ -27,26 +42,20 @@ namespace Sandbox.Placer.Placer
 
 
 
-		public override void Spawn()
+		public override void DestroyViewModel()
 		{
-			base.Spawn();
 
-			Tags.Add( "weapon" );
-			SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
+			placeVisualisator.HideVisualisation();
+			base.DestroyViewModel();
+
+			
 		}
-
-
-
-
-
-
-
-
 
 
 
 		public override void Simulate( IClient client )
 		{
+
 			if ( Owner is not Player owner ) return;
 
 
@@ -56,27 +65,35 @@ namespace Sandbox.Placer.Placer
 			var placing = false;
 
 
-			if ( Input.Pressed( InputButton.PrimaryAttack ) )
-			{
-				(Owner as AnimatedEntity)?.SetAnimParameter( "b_attack", true );
-				placing = true;
+			if ( Input.Pressed( InputButton.PrimaryAttack ) )placing = true;
 
 
-			}
 
-
-			if ( !Game.IsClient ) return;
-
-			using ( Prediction.Off() )
+			if ( Game.IsClient )
 			{
 
-				placeVisualisator.UpdateVisualisation( eyePos, eyeDir, eyeRot, owner );
+				using ( Prediction.Off() )
+				{
 
+					placeVisualisator.UpdateVisualisation( eyePos, eyeDir, eyeRot, owner );
+					
+					if (placing && placeVisualisator.IsInCorrectPosition() )
+					{
+						
+						var posandrot = placeVisualisator.GetVisualisationModelPositionAndRotation();
 
+						entityCreator.TryCreateEntityOnServer(owner, this.placableChoiser.GetCurrentChoise(), posandrot.Position, posandrot.Rotations );
+					}
+					
 
+				}
 			}
+		
 
 
 		}
+
+
+
 	}
 }
