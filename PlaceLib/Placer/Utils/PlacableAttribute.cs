@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sandbox.Placer.Placer.Utils
+
+namespace PlaceLib.Placer.Utils
 {
 	public class PlacableAttribute : Attribute
 	{

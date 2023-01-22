@@ -1,25 +1,23 @@
-﻿using Sandbox.Placer.VisualisationEntity.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Editor;
+using PlaceLib.VisualisationEntity.Abstraction;
+using Sandbox;
 
-namespace Sandbox.Placer.VisualisationEntity
+namespace PlaceLib.VisualisationEntity
 {
+
+	[CanBeClientsideOnly]
 	public class VisEntity : ModelEntity
 	{
-
-		protected string _modelpath;
 
 
 		protected IEntityRenderChanger _renderChanger;
 
-		public VisEntity( string modelpath, IEntityRenderChanger renderChanger)
+		public VisEntity(IEntityRenderChanger renderChanger)
 		{
 			Game.AssertClient();
 
-			_modelpath = modelpath;
+
 			_renderChanger = renderChanger;
 
 
@@ -28,7 +26,7 @@ namespace Sandbox.Placer.VisualisationEntity
 
 		public VisEntity()
 		{
-			Log.Error( "Visualisation entity need model and EntityRenderChanger" );
+			Log.Error( "Visualisation entity need EntityRenderChanger" );
 		}
 
 		public override void Spawn()
@@ -36,7 +34,6 @@ namespace Sandbox.Placer.VisualisationEntity
 			Game.AssertClient();
 
 
-			SetModel( _modelpath );
 			SetupPhysicsFromModel( PhysicsMotionType.Keyframed, false );
 
 			base.Spawn();
@@ -45,6 +42,9 @@ namespace Sandbox.Placer.VisualisationEntity
 		}
 
 		protected bool inCorrectPoisition = false;
+
+
+		
 
 		[Event( "client.tick" )]
 
@@ -74,8 +74,6 @@ namespace Sandbox.Placer.VisualisationEntity
 		{
 			var tr = Trace.Body( this.PhysicsBody, this.Position ).WorldAndEntities().Run();
 
-			DebugOverlay.TraceResult( tr );
-
 			return tr.Hit;
 		}
 
@@ -87,13 +85,13 @@ namespace Sandbox.Placer.VisualisationEntity
 
 		public void Hide()
 		{
-			this.RenderColor = this.RenderColor.WithAlpha( 0 );
+			EnableDrawing = false;
 			ishidden = true;
 		}
 
 		public void Show()
 		{
-			this.RenderColor = this.RenderColor.WithAlpha( 1f );
+			EnableDrawing = true;
 			ishidden = false;
 		}
 	}

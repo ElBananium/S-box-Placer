@@ -1,17 +1,13 @@
-﻿using Sandbox.Placer.VisualisationEntity.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PlaceLib.VisualisationEntity.Abstraction;
+using Sandbox;
 
-namespace Sandbox.Placer.VisualisationEntity.Base
+namespace Prefabs.RenderChangers
 {
 	public class BaseEntityRenderChanger : IEntityRenderChanger
 	{
 		public void OnCorrectPosition( ModelEntity entity )
 		{
-			
+
 			entity.RenderColor = Color.Green.WithAlpha( 0.9f );
 		}
 
