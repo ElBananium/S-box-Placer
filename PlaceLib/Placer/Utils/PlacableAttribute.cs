@@ -10,7 +10,7 @@ namespace PlaceLib.Placer.Utils
 
 		public PlacableAttribute( string model )
 		{
-			Model = model;
+			Model = model; 
 
 
 

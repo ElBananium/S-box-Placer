@@ -4,8 +4,6 @@
 using PlaceLib.Placer.Abstractions;
 using PlaceLib.Placer.Utils;
 using PlaceLib.VisualisationEntity;
-using PlaceLib.VisualisationEntity.Abstraction;
-using Prefabs.RenderChangers;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -34,6 +32,21 @@ namespace PlaceLib.Placer.PlaceSystem
 
 		public void Delete()
 		{
+			foreach ( var visualisator in AdditionalVisualisations )
+			{
+				visualisator.DeleteAdditionalVisualisation();
+			}
+
+			VisualisationEntity.Hide();
+		}
+
+		public void Hide()
+		{
+			foreach ( var visualisator in AdditionalVisualisations )
+			{
+				visualisator.HideAdditionalVisualisation();
+			}
+
 			VisualisationEntity.Hide();
 		}
 
@@ -41,7 +54,6 @@ namespace PlaceLib.Placer.PlaceSystem
 		public void UpdateVisualisation( Vector3 eyePos, Vector3 eyeDir, Rotation eyeRot, Player owner, PlacableChoise currentchoise )
 		{
 			
-
 				var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 					.WorldAndEntities()
 					.WithTag( "solid" )
@@ -51,55 +63,68 @@ namespace PlaceLib.Placer.PlaceSystem
 
 
 
-			if ( PlaceTerms.Count() > 0 )
-			{
-				bool isAllOk = true;
-				foreach ( var term in PlaceTerms )
+				if ( PlaceTerms.Count() > 0 )
 				{
-					isAllOk = isAllOk && !term.Invoke( tr );
+					bool isAllOk = true;
+					foreach ( var term in PlaceTerms )
+					{
+						isAllOk = isAllOk && !term.Invoke( tr );
+					}
+					if ( !isAllOk )
+					{
+						Hide();
+						return;
+					}
 				}
-				if ( !isAllOk )
-				{
-					VisualisationEntity.Hide();
-					return;
-				}
-			}
-
 
 				if ( VisualisationEntity.Model == null ) VisualisationEntity.SetModel( currentchoise.Model );
 
-				if ( currentchoise.Model != VisualisationEntity.Model.ResourcePath ) VisualisationEntity.SetModel( currentchoise.Model );
+
+				else if ( currentchoise.Model != VisualisationEntity.Model.ResourcePath ) VisualisationEntity.SetModel( currentchoise.Model );
 
 
-				var newpos = tr.HitPosition + tr.Normal * VisualisationEntity.CollisionBounds.Size * 0.55f; ;
+			var newpos = tr.HitPosition;
+
+			var newrot = Rotation.LookAt(eyeRot.Backward, tr.Normal);
+			var newtransform = new Transform( newpos, newrot );
+
+			
 
 
-				var newrot = Rotation.LookAt( eyeRot.Forward, tr.Normal );
-
-				var newtransform = new Transform( newpos, newrot );
-
-				VisualisationEntity.Transform = newtransform;
-
-				VisualisationEntity.Show();
 
 
-			foreach ( var visualisator in AdditionalVisualisations )
+			if(Trace.Body(VisualisationEntity.PhysicsBody, newtransform, newtransform.Position ).WorldOnly().Run().Hit)
 			{
-				visualisator.DeleteAdditionalVisualisation();
+				newpos = tr.HitPosition + tr.Normal * 15f;
+				newtransform = new Transform( newpos, newrot );
 			}
 
 
-			foreach ( var visualisator in AdditionalVisualisations )
-			{
-				if ( IsInCorrectPosition )
+			
+			VisualisationEntity.Transform = newtransform;
+
+			VisualisationEntity.Show();
+
+
+
+
+
+				foreach ( var visualisator in AdditionalVisualisations )
 				{
-					visualisator.OnCorrectPosition( eyePos, eyeDir, eyeRot, newtransform, owner );
+					visualisator.ShowAdditionVisualisation();
+
+					if ( IsInCorrectPosition )
+					{
+
+						visualisator.OnCorrectPosition( owner );
+					}
+					else
+					{
+						visualisator.OnIncorrectPosition( owner );
+					}
 				}
-				else
-				{
-					visualisator.OnIncorrectPosition( eyePos, eyeDir, eyeRot, newtransform, owner );
-				}
-			}
+			
+			
 
 
 
@@ -132,6 +157,12 @@ namespace PlaceLib.Placer.PlaceSystem
 
 			PlaceTerms = placeterms;
 			MaxTargetDistance= maxTargetDistance;
+
+
+			foreach(var advis in adVisual )
+			{
+				advis.CreateAdditionalVisualisation(VisualisationEntity);
+			}
 		}
 
 		~PlaceVisualisaton()

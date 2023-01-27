@@ -9,5 +9,8 @@ namespace PlaceLib.VisualisationEntity.Abstraction
 		public void OnCorrectPosition(ModelEntity entity);
 
 		public void OnWrongPosition(ModelEntity entity);
+
+
+		public void OnHide();
 	}
 }

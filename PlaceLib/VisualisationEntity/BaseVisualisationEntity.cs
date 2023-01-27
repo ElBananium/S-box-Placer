@@ -33,9 +33,9 @@ namespace PlaceLib.VisualisationEntity
 		{
 			Game.AssertClient();
 
-
+			SetModel( "models/ball/ball.vmdl" );
 			SetupPhysicsFromModel( PhysicsMotionType.Keyframed, false );
-
+			EnableShadowCasting = false;
 			base.Spawn();
 
 
@@ -85,6 +85,7 @@ namespace PlaceLib.VisualisationEntity
 
 		public void Hide()
 		{
+			_renderChanger.OnHide();
 			EnableDrawing = false;
 			ishidden = true;
 		}

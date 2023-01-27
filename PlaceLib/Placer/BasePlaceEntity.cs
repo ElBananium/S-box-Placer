@@ -3,7 +3,7 @@ using PlaceLib.Placer.PlaceSystem;
 using System.Linq;
 using Sandbox;
 using PlaceLib.Placer.Abstractions;
-
+using System;
 
 namespace PlaceLib.Placer
 {
@@ -14,6 +14,13 @@ namespace PlaceLib.Placer
 		protected abstract PlayerPlacingComponent BuildAndConfigurePlacingComponent();
 
 
+		protected bool CanStartPlacing( Player player )
+		{
+
+			return player.Components.GetAll<PlayerPlacingComponent>().Count() == 0 && player.Inventory.Active is not BasePlacerTool;
+		}
+
+
 		/// <summary>
 		/// Start placing for current player
 		/// </summary>
@@ -21,7 +28,7 @@ namespace PlaceLib.Placer
 		protected virtual void StartOrStorPlacing(Player player )
 		{
 			Game.AssertServer();
-			var comp = player.Components.GetAll<PlayerPlacingComponent>().FirstOrDefault( x => x.PlaceEntityId == this.NetworkIdent );
+			var comp = player.Components.GetAll<PlayerPlacingComponent>().FirstOrDefault( x => x.PlacerEntity.NetworkIdent == this.NetworkIdent );
 
 			if ( comp != default )
 			{
@@ -29,6 +36,7 @@ namespace PlaceLib.Placer
 			}
 			else
 			{
+				if ( !CanStartPlacing( player ) ) return;
 				var component = BuildAndConfigurePlacingComponent();
 				player.Components.Add( component );
 			}
@@ -45,7 +53,7 @@ namespace PlaceLib.Placer
 
 
 
-				var comp = player.Components.GetAll<PlayerPlacingComponent>().FirstOrDefault( x => x.PlaceEntityId == this.NetworkIdent );
+				var comp = player.Components.GetAll<PlayerPlacingComponent>().FirstOrDefault( x => x.PlacerEntity.NetworkIdent == this.NetworkIdent );
 
 				if ( comp != default )
 				{
@@ -75,7 +83,7 @@ namespace PlaceLib.Placer
 		protected BaseEntityCreator entityCreator { get; set; }
 
 		[Net]
-		public int PlaceEntityId { get; set; }
+		public Entity PlacerEntity { get; set; }
 
 		[Net]
 		public float MaxEntityDistance { get; set; }
@@ -83,11 +91,11 @@ namespace PlaceLib.Placer
 
 		public abstract PlaceVisualisaton BuildPlaceVisualisation();
 
-		public virtual void Configure( int EntId, BaseEntityCreator entitycreator, BasePlacableChoiser placableChoiser,float maxEntityDistnace )
+		public virtual void Configure( Entity placerEntity, BaseEntityCreator entitycreator, BasePlacableChoiser placableChoiser,float maxEntityDistnace )
 		{
 			PlacableChoiser = placableChoiser;
 			entityCreator = entitycreator;
-			PlaceEntityId = EntId;
+			PlacerEntity = placerEntity;
 			MaxEntityDistance= maxEntityDistnace;
 		}
 
@@ -112,7 +120,7 @@ namespace PlaceLib.Placer
 		[Event.Tick]
 		public virtual void OnTick()
 		{
-			var isInSphere = GameManager.FindInSphere( Entity.Position, MaxEntityDistance ).Any( x => x.NetworkIdent == PlaceEntityId );
+			var isInSphere = GameManager.FindInSphere( Entity.Position, MaxEntityDistance ).Any( x => x.NetworkIdent == PlacerEntity.NetworkIdent );
 
 
 
@@ -139,7 +147,7 @@ namespace PlaceLib.Placer
 
 				if ( placing && placeVisualisator.IsInCorrectPosition )
 				{
-					
+
 					var posandrot = placeVisualisator.GetVisualisationTransform();
 
 					entityCreator.TryCreateEntityOnServer( owner, this.PlacableChoiser.CurrentChoise, posandrot.Position, posandrot.Rotation );
